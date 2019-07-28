@@ -1,0 +1,9 @@
+.git
+.gitignore
+.*_hist*
+
+docker-compose.yml
+Dockerfile
+
+builds/
+.cache

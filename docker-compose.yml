@@ -1,0 +1,18 @@
+version: '3.7'
+
+volumes:
+  go_cache:
+
+services:
+  app:
+    image: icalialabs/docker-image-manager:development
+    build:
+      context: .
+      target: development
+    volumes:
+      - .:/go/src/github.com/IcaliaLabs/docker-image-manager
+      - go_cache:/go/src/github.com/IcaliaLabs/docker-image-manager/.cache
+    tty: true
+    stdin_open: true
+  
+  
