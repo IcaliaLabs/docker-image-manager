@@ -16,6 +16,7 @@ services:
     volumes:
       - .:/go/src/github.com/IcaliaLabs/docker-image-manager
       - go_cache:/go/src/github.com/IcaliaLabs/docker-image-manager/.cache
+      - /var/run/docker.sock:/var/run/docker.sock
     tty: true
     stdin_open: true
   
