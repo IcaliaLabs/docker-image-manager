@@ -1,0 +1,20 @@
+# We'll use the '3.x spec since it supports the 'cache_from'
+# option:
+version: '3.7'
+
+services:
+  manager_test:
+    image: docker-image-manager:testing
+    build: &manager_app_build
+      context: ..
+      target: testing
+      cache_from:
+        # Since docker-compose will try to build the unused (at this time) runtime
+        # stage, and this project's dev stages and runtime stages start from
+        # different images, we need to include the releaseable image here as well
+        # - this may change with Docker 19.x:
+        - 564922552600.dkr.ecr.eu-central-1.amazonaws.com/docker-image-manager:testing-${GIT_SHORT_SHA}
+        - 564922552600.dkr.ecr.eu-central-1.amazonaws.com/docker-image-manager:testing-${TAG_SAFE_BRANCH}
+        - 564922552600.dkr.ecr.eu-central-1.amazonaws.com/docker-image-manager:testing
+    stdin_open: true
+    tty: true
