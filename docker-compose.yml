@@ -9,6 +9,10 @@ services:
     build:
       context: .
       target: development
+      cache_from:
+        - golang:1.13-rc-alpine
+        - golang:1.12-alpine
+        - golang:1.11-alpine
     volumes:
       - .:/go/src/github.com/IcaliaLabs/docker-image-manager
       - go_cache:/go/src/github.com/IcaliaLabs/docker-image-manager/.cache
