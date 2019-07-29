@@ -47,15 +47,24 @@ type composeDataRead struct {
 
 // downloadCacheCmd represents the download-cache command
 var downloadCacheCmd = &cobra.Command{
-	Use:   "download-cache",
+	Use:   "download-cache [service_name_on_compose]",
 	Short: "Downloads images from the 'cache_from' key in a compose service",
 	Long: `Downloads images from the 'cache_from' key in a compose service:
 
 docker-image-manager download-cache -f .semaphore/ci-compose.yml service_name --break-on-first`,
+
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) < 1 {
+			return errors.New("requires a service defined in the compose file")
+		}
+		return nil
+	},
+
 	Run: func(cmd *cobra.Command, args []string) {
-		imageList, err := getCacheImageList(composeFile)
+		imageList, err := getCacheImageList(composeFile, args[0])
 		if err != nil {
-			return //imageList, err
+			fmt.Println(err)
+    	os.Exit(1)
 		}
 
 		fmt.Println(imageList)
@@ -83,7 +92,7 @@ func init() {
 	// downloadCacheCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func getCacheImageList(composeFile string) ([]string, error) {
+func getCacheImageList(composeFile string, serviceName string) ([]string, error) {
 	configDetails, err := getConfigDetails(composeFile)
 	if err != nil {
 		return nil, err
@@ -99,8 +108,20 @@ func getCacheImageList(composeFile string) ([]string, error) {
 
 		return nil, err
 	}
-		
-	return config.Services[0].Build.CacheFrom, nil
+
+	var selectedService composetypes.ServiceConfig
+	
+	for _, service := range config.Services {
+		if service.Name == serviceName {
+			selectedService = service
+		}
+  }
+
+	if selectedService.Name != serviceName {
+		return nil, errors.New("Service '" + serviceName + "' not found")
+	}
+	
+	return selectedService.Build.CacheFrom, nil
 }
 
 func getConfigDetails(composeFile string) (composetypes.ConfigDetails, error) {
